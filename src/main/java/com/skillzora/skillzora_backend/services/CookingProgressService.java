@@ -32,6 +32,8 @@ public class CookingProgressService {
         });
     }
 
+
+
     public boolean delete(String id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -39,4 +41,14 @@ public class CookingProgressService {
         }
         return false;
     }
+
+    public List<CookingProgress> getByPostId(String postId) {
+        return repository.findByPostId(postId);
+    }
+
+    public List<CookingProgress> getAllProgress() {
+        return repository.findAll();
+    }
+    
+    
 }

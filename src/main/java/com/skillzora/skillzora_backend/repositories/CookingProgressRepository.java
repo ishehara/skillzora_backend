@@ -9,4 +9,7 @@ import java.util.List;
 
 public interface CookingProgressRepository extends MongoRepository<CookingProgress, String> {
     List<CookingProgress> findByUserId(String userId);
+    List<CookingProgress> findByPostId(String postId);
+
 }
+

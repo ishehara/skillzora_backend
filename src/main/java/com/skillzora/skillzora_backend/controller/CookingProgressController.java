@@ -24,9 +24,9 @@ public class CookingProgressController {
     public ResponseEntity<String> create(@RequestBody CookingProgress progress) {
         try {
             service.save(progress);
-            return ResponseEntity.ok("✅ Progress plan for '" + progress.getRecipeTitle() + "' was added successfully.");
+            return ResponseEntity.ok(" Progress plan for '" + progress.getRecipeTitle() + "' was added successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("❌ Failed to save progress plan: " + e.getMessage());
+            return ResponseEntity.status(500).body(" Failed to save progress plan: " + e.getMessage());
         }
     }
 
@@ -37,24 +37,44 @@ public class CookingProgressController {
             List<CookingProgress> plans = service.getByUserId(userId);
             return ResponseEntity.ok(plans);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("❌ Failed to fetch plans: " + e.getMessage());
+            return ResponseEntity.status(500).body(" Failed to fetch plans: " + e.getMessage());
         }
     }
+
+    
 
     // ✅ Update plan
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @RequestBody CookingProgress progress) {
         return service.update(id, progress)
-                .map(updated -> ResponseEntity.ok("✅ Plan updated successfully."))
-                .orElse(ResponseEntity.status(404).body("❌ Plan not found."));
+                .map(updated -> ResponseEntity.ok("Plan updated successfully."))
+                .orElse(ResponseEntity.status(404).body(" Plan not found."));
     }
 
     // ✅ Delete plan
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable String id) {
         boolean deleted = service.delete(id);
-        if (deleted) return ResponseEntity.ok("✅ Plan deleted successfully.");
-        else return ResponseEntity.status(404).body("❌ Plan not found.");
+        if (deleted) return ResponseEntity.ok(" Plan deleted successfully.");
+        else return ResponseEntity.status(404).body(" Plan not found.");
     }
+
+    @GetMapping("/post/{postId}")
+public ResponseEntity<?> getByPost(@PathVariable String postId) {
+    try {
+        List<CookingProgress> plans = service.getByPostId(postId);
+        return ResponseEntity.ok(plans);
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body("❌ Failed to fetch plans for post: " + e.getMessage());
+    }
+}
+
+// ✅ Add this to CookingProgressController.java
+@GetMapping
+public ResponseEntity<List<CookingProgress>> getAllProgress() {
+    return ResponseEntity.ok(service.getAllProgress());
+}
+
+
 }
 

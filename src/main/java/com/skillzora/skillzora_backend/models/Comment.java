@@ -5,6 +5,7 @@ package com.skillzora.skillzora_backend.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
+import java.util.List;
 
 @Document(collection = "comments")
 public class Comment {
@@ -13,6 +14,8 @@ public class Comment {
     private String postId;
     private String userId;
     private String commentText;
+     private List<String> tags;           // ✅ New field
+    private String mood;         
     private Date timestamp;
 
 
@@ -57,6 +60,22 @@ public class Comment {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public String getMood() {
+        return mood;
+    }
+
+    public void setMood(String mood) {
+        this.mood = mood;
     }
 
     public Comment(String id, String postId, String userId, String commentText, Date timestamp) {

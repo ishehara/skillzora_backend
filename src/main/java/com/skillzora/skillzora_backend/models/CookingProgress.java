@@ -12,6 +12,7 @@ public class CookingProgress {
 
     @Id
     private String id;
+    private String postId; // ✅ Add this line
     private String userId;
     private String recipeTitle;
     private List<CookingStep> steps;
@@ -48,4 +49,13 @@ public class CookingProgress {
     public void setSteps(List<CookingStep> steps) {
         this.steps = steps;
     }
+
+    // Getter & Setter
+public String getPostId() {
+    return postId;
+}
+
+public void setPostId(String postId) {
+    this.postId = postId;
+}
 }

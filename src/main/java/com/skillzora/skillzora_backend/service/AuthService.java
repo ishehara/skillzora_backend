@@ -18,21 +18,26 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 @Service
 public class AuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider tokenProvider;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtTokenProvider tokenProvider;
+    public AuthService(AuthenticationManager authenticationManager,
+                      UserRepository userRepository,
+                      PasswordEncoder passwordEncoder,
+                      JwtTokenProvider tokenProvider) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenProvider = tokenProvider;
+    }
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -68,17 +73,58 @@ public class AuthService {
         }
 
         // Create new user account
-        User user = new User(
-                signupRequest.getFirstName(),
-                signupRequest.getLastName(),
-                signupRequest.getUsername(),
-                signupRequest.getEmail(),
-                passwordEncoder.encode(signupRequest.getPassword())
-        );
-
+        User user = new User();
+        user.setFirstName(signupRequest.getFirstName());
+        user.setLastName(signupRequest.getLastName());
+        user.setUsername(signupRequest.getUsername());
+        user.setEmail(signupRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setDateJoined(new Date());
+        
         // Set default role to "ROLE_USER"
         user.setRoles(new ArrayList<>(Collections.singletonList("ROLE_USER")));
         
+        // Initialize collections
+        user.setFollowing(new ArrayList<>());
+        user.setFollowers(new ArrayList<>());
+        user.setSavedPosts(new ArrayList<>());
+        
+        // Set account status
+        user.setActive(true);
+        
         userRepository.save(user);
+    }
+    
+    // Method to handle user registration via OAuth
+    public User registerOAuthUser(String email, String firstName, String lastName, String picture) {
+        if (userRepository.existsByEmail(email)) {
+            return userRepository.findByEmail(email).orElseThrow();
+        }
+        
+        User user = new User();
+        user.setEmail(email);
+        user.setFirstName(firstName != null ? firstName : "");
+        user.setLastName(lastName != null ? lastName : "");
+        
+        // Generate a username based on email
+        String baseUsername = email.split("@")[0];
+        user.setUsername(baseUsername + "_" + System.currentTimeMillis() % 10000);
+        
+        // Set a random password - OAuth users won't use password login
+        user.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+        
+        // Set profile picture if provided
+        if (picture != null && !picture.isEmpty()) {
+            user.setProfilePicture(picture);
+        }
+        
+        user.setDateJoined(new Date());
+        user.setRoles(new ArrayList<>(Collections.singletonList("ROLE_USER")));
+        user.setFollowing(new ArrayList<>());
+        user.setFollowers(new ArrayList<>());
+        user.setSavedPosts(new ArrayList<>());
+        user.setActive(true);
+        
+        return userRepository.save(user);
     }
 }
